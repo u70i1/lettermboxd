@@ -20,8 +20,8 @@ def parse(username: str, page: int, amount_per_page: int):
                 "film_title": e.get("letterboxd_filmtitle"),
                 "film_year": e.get("letterboxd_filmyear"),
                 "member_rating": e.get("letterboxd_memberrating"),
-                "member_like": True if e.get("letterboxd_watcheddate") == "Yes" else False,
-                "member_rewatch": True if e.get("letterboxd_rewatch") == "Yes" else False,
+                "member_like": yes_conditional(e, "letterboxd_memberlike"),
+                "member_rewatch": yes_conditional(e, "letterboxd_rewatch"),
                 "tmbd_movieid": e.get("tmdb_movieid"),
                 "review": summary,
             }
@@ -29,3 +29,10 @@ def parse(username: str, page: int, amount_per_page: int):
 
     return clean_entry
 
+def yes_conditional(dict: dict, keys: str):
+    if dict.get(keys) == "Yes":
+        return True
+    elif dict.get(keys) is None:
+        return None
+    else:
+        return False
