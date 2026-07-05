@@ -12,7 +12,8 @@ def parse(username: str, page: int, amount_per_page: int):
 
     clean_entry = []
     for e in entry:
-        summary = re.sub(r"<.*?>", "", e.summary).strip()  # type: ignore
+        # this removes the trailing paragraph and image tags at the beginning
+        summary = re.sub(r"^<p.*?</p>", "", e.summary).strip() # type: ignore
         clean_entry.append(
             {
                 "link": e.get("link"),

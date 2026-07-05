@@ -5,6 +5,20 @@ from fastapi.responses import PlainTextResponse
 
 app = FastAPI()
 
+
+def format_review(review: str):
+    tagses = {"bold": ["b", "strong"], "italic": ["em", "i"]}
+    review = review.replace("<p>", "\n")
+    review = review.replace("</p>", "\n")
+
+    for style, tags in tagses.items():
+        for tag in tags:
+            review = review.replace(f"<{tag}>", f"[{style}]")
+            review = review.replace(f"</{tag}>", f"[/{style}]")
+
+    return review
+
+
 def star_maker(rating):
     rating = float(rating)
     star = "★"
@@ -14,10 +28,11 @@ def star_maker(rating):
         rating -= 0.5
 
         result = star * int(rating)
-        return f"{result}{half}"
+        return f"[yellow bold]{result}{half}[/]"
     else:
         result = star * int(rating)
-        return result
+        return f"[yellow bold]{result}[/]"
+
 
 @app.get("/{username}")
 def fetch(username: str, page: int = 1, amount_per_page: int = 5):
@@ -40,11 +55,11 @@ def fetch(username: str, page: int = 1, amount_per_page: int = 5):
         ) = activity.values()
         return PlainTextResponse(
             boxen(
-                f"{review}",
-                title=f"{film_title} - [yellow bold]{star_maker(member_rating)}[/] {"[red bold]:heart:[/]" if member_like else ""}",
+                f"{format_review(review)}",
+                title=f"{film_title} - {star_maker(member_rating)} {'[red bold]:heart:[/]' if member_like else ''}",
                 # subtitle="Cool subtitle goes here",
                 # subtitle_alignment="center",
                 color="#eeeeee",
-                padding=1,
+                padding=(0, 1), # type: ignore
             )
         )
